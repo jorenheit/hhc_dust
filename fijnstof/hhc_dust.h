@@ -37,6 +37,7 @@ inline void _stall() { while (1) {} };
 struct Sensor {
     HM330X sensor;
     uint16_t pm_1_0, pm_2_5, pm_10;
+    unsigned long lastUpdateTime;
 
     void init() {
         if (sensor.init()) {
@@ -72,16 +73,21 @@ struct Sensor {
         pm_1_0 = get(PM_1_0_INDEX);
         pm_2_5 = get(PM_2_5_INDEX);
         pm_10  = get(PM_10_INDEX);
+        lastUpdateTime = millis();
     }
 
+    void wait(unsigned long dt) {
+        while (millis() - lastUpdateTime < dt) {}
+    }
     void printHeader() {
-        Serial.println("pm1.0, pm2.5, pm10 (ug/m3)");
+        Serial.println("t(s), pm1.0 (ug/m3), pm2.5 (ug/m3), pm10 (ug/m3)");
     }
 
     void print() {
+        Serial.print(lastUpdateTime);   Serial.print(", ");
         Serial.print(pm_1_0); Serial.print(", ");
         Serial.print(pm_2_5); Serial.print(", ");
-        Serial.print(pm_10); Serial.println("");
+        Serial.println(pm_10);
     }
 };
 
